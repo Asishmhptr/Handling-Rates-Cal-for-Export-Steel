@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMILL | Steel Handling Rate Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand-blue:#1152C8;
+    --brand-navy:#0A2E6B;
+    --sky:#4B8FE8;
+    --sky-tint:#E9F1FC;
+    --paper:#F5F8FD;
+    --ink:#0F1E3D;
+    --ink-soft:#5B6B8C;
+    --white:#FFFFFF;
+    --line:#D7E3F7;
+    --amber:#DC8B12;
+    --teal:#0E8E82;
+    --teal-tint:#E5F5F3;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- wave motif ---------- */
+  .wave-strip{
+    position:relative;
+    height:44px;
+    background:var(--paper);
+    overflow:hidden;
+  }
+  .wave-row{
+    position:absolute;
+    left:0; right:0;
+    height:10px;
+    background-repeat:repeat-x;
+    background-size:60px 10px;
+    opacity:.6;
+  }
+  .wave-row.w1{ top:14px; background-image:radial-gradient(circle at 10px 0, transparent 8px, var(--brand-navy) 9px, transparent 10px); opacity:.28; }
+  .wave-row.w2{ top:24px; background-image:radial-gradient(circle at 10px 0, transparent 8px, var(--brand-navy) 9px, transparent 10px); opacity:.18; background-size:60px 8px; }
+
+  .ship{
+    position:absolute;
+    bottom:6px;
+    left:calc(100% - 300px);
+    width:260px;
+    max-width:60vw;
+    height:auto;
+    transform:translateX(-140vw);
+    animation:shipSail 3.4s cubic-bezier(.22,.68,.32,1) forwards;
+    animation-delay:.35s;
+  }
+  @keyframes shipSail{
+    from{ transform:translateX(-140vw); }
+    to{ transform:translateX(0); }
+  }
+  @media (prefers-reduced-motion:reduce){
+    .ship{ animation:none; transform:translateX(0); }
+  }
+
+  header{
+    background:linear-gradient(180deg, var(--brand-navy) 0%, var(--brand-blue) 100%);
+    color:var(--white);
+    padding:clamp(18px,2.6vw,32px) clamp(18px,4vw,64px) clamp(20px,3vw,34px);
+  }
+  .header-row{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    max-width:1680px;
+    margin:0 auto;
+  }
+  .brand-text .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:clamp(11px,.85vw,13px);
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--sky-tint);
+    opacity:.85;
+    margin:0 0 4px;
+  }
+  .brand-text h1{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;
+    font-size:clamp(26px,3.2vw,46px);
+    letter-spacing:.01em;
+    margin:0;
+    line-height:1;
+  }
+
+  main{
+    max-width:1680px;
+    margin:0 auto;
+    padding:clamp(24px,3vw,42px) clamp(18px,4vw,64px) 70px;
+  }
+
+  .panel{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:0 1px 3px rgba(10,46,107,.06), 0 10px 30px -18px rgba(10,46,107,.25);
+    padding:clamp(26px,2.4vw,40px) clamp(18px,3.2vw,44px);
+    margin-top:-38px;
+    position:relative;
+    z-index:2;
+  }
+
+  .controls{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:16px;
+    margin-bottom:8px;
+  }
+  @media (max-width:960px){ .controls{grid-template-columns:1fr 1fr;} }
+  @media (max-width:560px){ .controls{grid-template-columns:1fr;} }
+
+  .field label{
+    display:block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+  }
+  .field select{
+    width:100%;
+    appearance:none;
+    -webkit-appearance:none;
+    background:var(--white) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="9"><path d="M1 1l6 6 6-6" stroke="%230A2E6B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>') no-repeat right 14px center;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    padding:12px 36px 12px 13px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    color:var(--ink);
+    cursor:pointer;
+    transition:border-color .15s ease;
+  }
+  .field select:hover{border-color:var(--sky);}
+  .field select:focus-visible{outline:3px solid var(--sky); outline-offset:1px; border-color:var(--brand-blue);}
+
+  .reset-row{
+    display:flex;
+    justify-content:flex-end;
+    margin:2px 0 6px;
+  }
+  .reset-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.06em;
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    cursor:pointer;
+    text-decoration:underline;
+    padding:4px 2px;
+  }
+  .reset-btn:hover{color:var(--brand-blue);}
+
+  .results-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-top:26px;
+    margin-bottom:12px;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .results-head h2{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:22px;
+    font-weight:600;
+    color:var(--brand-navy);
+    margin:0;
+    letter-spacing:.01em;
+  }
+  .results-head .count{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    letter-spacing:.04em;
+  }
+
+  .table-scroll{
+    width:100%;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  table{
+    width:100%;
+    min-width:680px;
+    border-collapse:collapse;
+    font-size:14.5px;
+  }
+  thead th{
+    text-align:left;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    padding:8px 14px 10px;
+    border-bottom:2px solid var(--brand-navy);
+  }
+  thead th.num{text-align:right;}
+  thead th.group-head{
+    text-align:center;
+    color:var(--brand-navy);
+    font-size:11px;
+    font-weight:700;
+    padding:8px 14px;
+    border-bottom:1px solid var(--line);
+  }
+  thead th.sub-head{padding-top:8px;}
+
+  .grp-handling{ background:rgba(17,82,200,.055); }
+  .grp-freight{ background:rgba(14,142,130,.08); }
+  th.grp-handling, td.grp-handling.grp-start, th.grp-handling.grp-start{ border-left:2px solid rgba(17,82,200,.35); }
+  th.grp-freight, td.grp-freight.grp-start, th.grp-freight.grp-start{ border-left:2px solid rgba(14,142,130,.4); }
+
+  tbody td{
+    padding:11px 14px;
+    border-bottom:1px solid var(--line);
+    color:var(--ink);
+  }
+  tbody td.num{text-align:right; font-family:'IBM Plex Mono',monospace; font-size:13.5px;}
+  tbody td.point{font-weight:600;}
+  tbody td.zero{color:var(--ink-soft); opacity:.6;}
+  tbody tr:hover td{background:var(--sky-tint);}
+  tbody tr:hover td.grp-freight{background:var(--teal-tint);}
+  td.grp-freight{cursor:help;}
+
+  /* ---------- total-rate tooltip ---------- */
+  .rate-tooltip{
+    position:fixed;
+    z-index:999;
+    background:var(--white);
+    border:1.5px solid var(--teal);
+    border-radius:8px;
+    padding:12px 15px;
+    box-shadow:0 12px 32px rgba(10,46,107,.22);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--ink);
+    min-width:230px;
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .12s ease;
+    pointer-events:none;
+  }
+  .rate-tooltip.visible{opacity:1; visibility:visible;}
+  .tip-title{
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color:var(--brand-navy);
+    margin-bottom:8px;
+    padding-bottom:6px;
+    border-bottom:1px solid var(--line);
+  }
+  .tip-row{
+    display:flex;
+    justify-content:space-between;
+    gap:18px;
+    padding:2.5px 0;
+    color:var(--ink-soft);
+  }
+  .tip-row span:last-child{color:var(--ink); font-weight:500;}
+  .tip-total{border-top:1.5px solid var(--brand-navy); margin-top:5px; padding-top:6px; font-weight:600;}
+  .tip-total span{color:var(--teal) !important; font-size:13px;}
+  .tip-divider{border-top:1px dashed var(--line); margin:9px 0 6px;}
+
+  .empty-state{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    padding:52px 20px;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+  .empty-state p{margin:0; font-size:14.5px;}
+
+  footer{
+    text-align:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    padding:20px;
+    letter-spacing:.03em;
+  }
+
+  .data-banner{
+    max-width:1680px;
+    margin:0 auto;
+    padding:0 clamp(18px,4vw,64px);
+  }
+  .data-banner .msg{
+    display:none;
+    background:#FDECEC;
+    border:1px solid #F3B9B9;
+    color:#8A1F1F;
+    border-radius:8px;
+    padding:12px 16px;
+    font-size:13px;
+    margin-top:14px;
+  }
+  .data-banner .msg.visible{display:block;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <div class="brand-text">
+      <p class="eyebrow">TM International Logistics Ltd</p>
+      <h1>Steel Handling Rate Calculator</h1>
+    </div>
+  </div>
+</header>
+
+<div class="wave-strip">
+  <div class="wave-row w1"></div>
+  <div class="wave-row w2"></div>
+  <svg class="ship" viewBox="0 0 400 90" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M20 62 L380 62 L360 78 Q200 88 40 78 Z" fill="#0A2E6B"/>
+    <rect x="55" y="30" width="130" height="34" rx="3" fill="#1152C8"/>
+    <rect x="63" y="37" width="18" height="14" rx="1" fill="#E9F1FC" opacity="0.8"/>
+    <rect x="87" y="37" width="18" height="14" rx="1" fill="#E9F1FC" opacity="0.8"/>
+    <rect x="111" y="37" width="18" height="14" rx="1" fill="#E9F1FC" opacity="0.8"/>
+    <rect x="200" y="18" width="70" height="46" rx="3" fill="#0A2E6B"/>
+    <rect x="208" y="26" width="16" height="12" rx="1" fill="#E9F1FC" opacity="0.8"/>
+    <rect x="230" y="26" width="16" height="12" rx="1" fill="#E9F1FC" opacity="0.8"/>
+    <rect x="252" y="26" width="14" height="12" rx="1" fill="#E9F1FC" opacity="0.8"/>
+    <rect x="280" y="42" width="80" height="20" rx="2" fill="#4B8FE8" opacity="0.5"/>
+    <rect x="230" y="6" width="6" height="14" fill="#0A2E6B"/>
+    <circle cx="233" cy="4" r="3" fill="#DC8B12"/>
+  </svg>
+</div>
+
+<main>
+  <div class="panel">
+
+    <div class="controls">
+      <div class="field">
+        <label for="selTerminal">Terminal</label>
+        <select id="selTerminal" onchange="render()"></select>
+      </div>
+      <div class="field">
+        <label for="selCargo">Cargo</label>
+        <select id="selCargo" onchange="render()"></select>
+      </div>
+      <div class="field">
+        <label for="selBiz">Biz Type</label>
+        <select id="selBiz" onchange="render()"></select>
+      </div>
+      <div class="field">
+        <label for="selMode">Mode</label>
+        <select id="selMode" onchange="render()"></select>
+      </div>
+      <div class="field">
+        <label for="selPlant">Plant (Freight)</label>
+        <select id="selPlant" onchange="render()"></select>
+      </div>
+    </div>
+
+    <div class="reset-row">
+      <button class="reset-btn" onclick="resetFilters()">Reset filters</button>
+    </div>
+
+    <div class="results-head">
+      <h2>Rates</h2>
+      <span class="count" id="resultsCount"></span>
+    </div>
+
+    <div id="resultsWrap"></div>
+
+  </div>
+</main>
+
+<div id="tooltip" class="rate-tooltip" role="tooltip"></div>
+
+<div class="data-banner"><div class="msg" id="loadError">Couldn't load rate data. If you opened this file directly from disk, that's expected — browsers block local data loading for security. Serve this page over http(s) (e.g. via GitHub Pages, or run a local server) instead.</div></div>
+
+<footer id="footerText">Loading data&hellip;</footer>
+
+<script>
+let DATA = null;
+let currentRows = [];
+
+function loadData(){
+  fetch('steel_handling_rates.json?v=' + Date.now(), { cache: 'no-store' })
+    .then(r => { if(!r.ok) throw new Error('bad response'); return r.json(); })
+    .then(json => {
+      DATA = json;
+      document.getElementById('footerText').textContent = 'Source: internal handling & freight rate sheet · Last updated: ' + (json.lastUpdated || '—');
+      populateFilters();
+      render();
+    })
+    .catch(() => {
+      document.getElementById('loadError').classList.add('visible');
+      document.getElementById('footerText').textContent = 'Data not loaded.';
+    });
+}
+
+function fillSelect(id, values, labelAll){
+  const sel = document.getElementById(id);
+  sel.innerHTML = '';
+  const optAll = document.createElement('option');
+  optAll.value = ''; optAll.textContent = labelAll;
+  sel.appendChild(optAll);
+  values.forEach(v=>{
+    const o = document.createElement('option');
+    o.value = v; o.textContent = v;
+    sel.appendChild(o);
+  });
+}
+
+function populateFilters(){
+  fillSelect('selTerminal', DATA.terminals, 'All Terminals');
+  fillSelect('selCargo', DATA.cargoTypes, 'All Cargo');
+  fillSelect('selBiz', DATA.bizTypes, 'All Biz Types');
+  fillSelect('selMode', DATA.modes, 'All Modes');
+  fillSelect('selPlant', DATA.plants, 'All Plants');
+}
+
+function resetFilters(){
+  ['selTerminal','selCargo','selBiz','selMode','selPlant'].forEach(id=>{
+    document.getElementById(id).value = '';
+  });
+  render();
+}
+
+function fmt(n){
+  if(n === undefined || n === null) return '—';
+  return '₹' + Number(n).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function render(){
+  if(!DATA) return;
+  const terminal = document.getElementById('selTerminal').value;
+  const cargo = document.getElementById('selCargo').value;
+  const biz = document.getElementById('selBiz').value;
+  const mode = document.getElementById('selMode').value;
+  const plant = document.getElementById('selPlant').value;
+
+  const wrap = document.getElementById('resultsWrap');
+  const countEl = document.getElementById('resultsCount');
+
+  const bizCols = biz ? [biz] : DATA.bizTypes;
+  const plantCols = plant ? [plant] : DATA.plants;
+
+  const rows = DATA.rows.filter(r=>{
+    if(terminal && r.terminal !== terminal) return false;
+    if(cargo && r.cargo !== cargo) return false;
+    if(mode && r.mode !== mode) return false;
+    return true;
+  });
+
+  if(rows.length === 0){
+    countEl.textContent = '';
+    wrap.innerHTML = '<div class="empty-state">' +
+      '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#5B6B8C" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>' +
+      '<p>No rate on file for this combination.</p>' +
+      '</div>';
+    return;
+  }
+
+  countEl.textContent = rows.length + ' route' + (rows.length>1?'s':'');
+
+  let html = '<div class="table-scroll"><table><thead><tr>' +
+    '<th rowspan="2">Terminal</th>' +
+    '<th rowspan="2">Cargo</th>' +
+    '<th rowspan="2">Mode</th>' +
+    '<th colspan="' + bizCols.length + '" class="group-head grp-handling grp-start">Handling Rate (&#8377;/T)</th>' +
+    '<th colspan="' + plantCols.length + '" class="group-head grp-freight grp-start">Freight (&#8377;)</th>' +
+  '</tr><tr>';
+  bizCols.forEach((b,i)=>{
+    html += '<th class="num sub-head grp-handling' + (i===0?' grp-start':'') + '">' + b + '</th>';
+  });
+  plantCols.forEach((p,i)=>{
+    html += '<th class="num sub-head grp-freight' + (i===0?' grp-start':'') + '">' + p + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  rows.forEach((r, rIdx)=>{
+    html += '<tr>' +
+      '<td class="point">' + r.terminal + '</td>' +
+      '<td>' + r.cargo + '</td>' +
+      '<td>' + r.mode + '</td>';
+    bizCols.forEach((b,i)=>{
+      const v = r.handling && r.handling[b];
+      const cls = (!v || v === 0) ? ' zero' : '';
+      html += '<td class="num grp-handling' + (i===0?' grp-start':'') + cls + '">' + fmt(v) + '</td>';
+    });
+    plantCols.forEach((p,i)=>{
+      const v = r.freight && r.freight[p];
+      const cls = (!v || v === 0) ? ' zero' : '';
+      html += '<td class="num grp-freight' + (i===0?' grp-start':'') + cls + '" data-ridx="' + rIdx + '" data-plant="' + p + '">' + fmt(v) + '</td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  wrap.innerHTML = html;
+  currentRows = rows;
+}
+
+function tooltipHTML(row, plantCode){
+  const biz = document.getElementById('selBiz').value;
+  const bizList = biz ? [biz] : DATA.bizTypes;
+  let html = '<div class="tip-title">Total Rate via ' + plantCode + '</div>';
+  bizList.forEach((b, i)=>{
+    const h = (row.handling && row.handling[b]) || 0;
+    const f = (row.freight && row.freight[plantCode]) || 0;
+    const total = h + f;
+    if(i > 0) html += '<div class="tip-divider"></div>';
+    html += '<div class="tip-row"><span>' + b + ' Handling</span><span>' + fmt(h) + '</span></div>';
+    html += '<div class="tip-row"><span>+ Freight (' + plantCode + ')</span><span>' + fmt(f) + '</span></div>';
+    html += '<div class="tip-row tip-total"><span>Total</span><span>' + fmt(total) + '</span></div>';
+  });
+  return html;
+}
+
+function positionTooltip(e){
+  const tip = document.getElementById('tooltip');
+  const pad = 16;
+  let x = e.clientX + pad;
+  let y = e.clientY + pad;
+  const tw = tip.offsetWidth || 240;
+  const th = tip.offsetHeight || 140;
+  if(x + tw > window.innerWidth - 10) x = e.clientX - tw - pad;
+  if(y + th > window.innerHeight - 10) y = e.clientY - th - pad;
+  tip.style.left = x + 'px';
+  tip.style.top = y + 'px';
+}
+
+function initTooltipEvents(){
+  const wrap = document.getElementById('resultsWrap');
+  const tip = document.getElementById('tooltip');
+  wrap.addEventListener('mousemove', (e)=>{
+    const td = e.target.closest('td.grp-freight');
+    if(td && td.dataset.plant){
+      const row = currentRows[+td.dataset.ridx];
+      if(row){
+        tip.innerHTML = tooltipHTML(row, td.dataset.plant);
+        tip.classList.add('visible');
+        positionTooltip(e);
+        return;
+      }
+    }
+    tip.classList.remove('visible');
+  });
+  wrap.addEventListener('mouseleave', ()=> tip.classList.remove('visible'));
+}
+
+loadData();
+initTooltipEvents();
+</script>
+
+</body>
+</html>
