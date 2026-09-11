@@ -1,0 +1,167 @@
+{
+  "lastUpdated": "Sept 2026",
+  "terminals": [
+    "DHAMRA",
+    "PICT@PARADIP"
+  ],
+  "cargoTypes": [
+    "HRC",
+    "SLAB",
+    "CRC"
+  ],
+  "modes": [
+    "RAIL",
+    "ROAD"
+  ],
+  "bizTypes": [
+    "EXPORT",
+    "COASTAL"
+  ],
+  "plants": [
+    "TSK",
+    "TSM",
+    "TSJ"
+  ],
+  "rows": [
+    {
+      "terminal": "DHAMRA",
+      "cargo": "SLAB",
+      "mode": "RAIL",
+      "handling": {
+        "EXPORT": 477.41,
+        "COASTAL": 477.41
+      },
+      "freight": {
+        "TSK": 374.57,
+        "TSM": 564.87,
+        "TSJ": 853.59
+      }
+    },
+    {
+      "terminal": "DHAMRA",
+      "cargo": "HRC",
+      "mode": "RAIL",
+      "handling": {
+        "EXPORT": 477.41,
+        "COASTAL": 477.41
+      },
+      "freight": {
+        "TSK": 374.57,
+        "TSM": 564.87,
+        "TSJ": 853.59
+      }
+    },
+    {
+      "terminal": "DHAMRA",
+      "cargo": "HRC",
+      "mode": "ROAD",
+      "handling": {
+        "EXPORT": 477.41,
+        "COASTAL": 477.41
+      },
+      "freight": {
+        "TSK": 724,
+        "TSM": 0,
+        "TSJ": 0
+      }
+    },
+    {
+      "terminal": "DHAMRA",
+      "cargo": "SLAB",
+      "mode": "ROAD",
+      "handling": {
+        "EXPORT": 477.41,
+        "COASTAL": 477.41
+      },
+      "freight": {
+        "TSK": 875,
+        "TSM": 0,
+        "TSJ": 0
+      }
+    },
+    {
+      "terminal": "PICT@PARADIP",
+      "cargo": "HRC",
+      "mode": "RAIL",
+      "handling": {
+        "EXPORT": 707,
+        "COASTAL": 525
+      },
+      "freight": {
+        "TSK": 327.19,
+        "TSM": 489.6,
+        "TSJ": 1069.56
+      }
+    },
+    {
+      "terminal": "PICT@PARADIP",
+      "cargo": "HRC",
+      "mode": "ROAD",
+      "handling": {
+        "EXPORT": 667,
+        "COASTAL": 489
+      },
+      "freight": {
+        "TSK": 664,
+        "TSM": 0,
+        "TSJ": 0
+      }
+    },
+    {
+      "terminal": "PICT@PARADIP",
+      "cargo": "SLAB",
+      "mode": "RAIL",
+      "handling": {
+        "EXPORT": 707,
+        "COASTAL": 525
+      },
+      "freight": {
+        "TSK": 327.19,
+        "TSM": 489.6,
+        "TSJ": 1069.56
+      }
+    },
+    {
+      "terminal": "PICT@PARADIP",
+      "cargo": "SLAB",
+      "mode": "ROAD",
+      "handling": {
+        "EXPORT": 667,
+        "COASTAL": 489
+      },
+      "freight": {
+        "TSK": 752,
+        "TSM": 0,
+        "TSJ": 0
+      }
+    },
+    {
+      "terminal": "PICT@PARADIP",
+      "cargo": "CRC",
+      "mode": "RAIL",
+      "handling": {
+        "EXPORT": 749,
+        "COASTAL": 560
+      },
+      "freight": {
+        "TSK": 327.19,
+        "TSM": 489.6,
+        "TSJ": 1069.56
+      }
+    },
+    {
+      "terminal": "PICT@PARADIP",
+      "cargo": "CRC",
+      "mode": "ROAD",
+      "handling": {
+        "EXPORT": 710,
+        "COASTAL": 524
+      },
+      "freight": {
+        "TSK": 0,
+        "TSM": 0,
+        "TSJ": 0
+      }
+    }
+  ]
+}
